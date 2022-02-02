@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 2054257767410493074}
   m_Layer: 0
   m_Name: Knight
-  m_TagString: Untagged
+  m_TagString: obstacle
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -28,8 +28,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1451306887508750026}
   m_LocalRotation: {x: 0, y: -0.7071068, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 12.98, y: 1.451, z: -3.24}
-  m_LocalScale: {x: 0.1, y: 1, z: 1}
+  m_LocalPosition: {x: 0, y: 1.44, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2924541713600373261}
@@ -100,7 +100,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5fdf4f3f80a2bff48aeffcbe450895b4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 5
+  startMovePosition: 0
+  endMovePosition: 0
 --- !u!1 &2925937855446302699
 GameObject:
   m_ObjectHideFlags: 0

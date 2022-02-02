@@ -4,26 +4,37 @@ using UnityEngine;
 
 public class SwipeController : MonoBehaviour
 {
-    public static bool tap, swipeLeft, swipeRight, swipeUp, swipeDown;
+    public static bool tap, swipeLeft, swipeRight, swipeUp, swipeDown, doubleTap;
     private bool isDraging = false;
     private Vector2 startTouch, swipeDelta;
+    private float lastCklickTime = 0.0f;
+    private readonly float doubleTapDelay = 0.2f;
 
     private void Update()
     {
-        tap = swipeDown = swipeUp = swipeLeft = swipeRight = false;
+        tap = swipeDown = swipeUp = swipeLeft = swipeRight = doubleTap = false;       
         #region ПК-версия
         if (Input.GetMouseButtonDown(0))
         {
             tap = true;
             isDraging = true;
             startTouch = Input.mousePosition;
+            //Двойное нажатие
+            float timeFromLastClick = Time.realtimeSinceStartup - lastCklickTime;
+            lastCklickTime = Time.realtimeSinceStartup;
+            if(timeFromLastClick < doubleTapDelay)
+            {
+                doubleTap = true;
+            }
+            
         }
         else if (Input.GetMouseButtonUp(0))
         {
-            isDraging = false;
+            isDraging = false;          
             Reset();
-        }
+        }       
         #endregion
+       
 
         #region Мобильная версия
         if (Input.touches.Length > 0)
@@ -33,6 +44,13 @@ public class SwipeController : MonoBehaviour
                 tap = true;
                 isDraging = true;
                 startTouch = Input.touches[0].position;
+                //Двойное нажатие
+                float timeFromLastClick = Time.realtimeSinceStartup - lastCklickTime;
+                lastCklickTime = Time.realtimeSinceStartup;
+                if (timeFromLastClick < doubleTapDelay)
+                {
+                    doubleTap = true;
+                }
             }
             else if (Input.touches[0].phase == TouchPhase.Ended || Input.touches[0].phase == TouchPhase.Canceled)
             {
@@ -74,10 +92,8 @@ public class SwipeController : MonoBehaviour
                 else
                     swipeUp = true;
             }
-
             Reset();
-        }
-
+        }      
     }
 
     private void Reset()

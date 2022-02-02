@@ -6,29 +6,46 @@ public class KnighteMove : MonoBehaviour
 {
     private CharacterController controller;
     Vector3 pos;
-    [SerializeField] float speed;
+    float speed;
+    [SerializeField] float startMovePosition;
+    [SerializeField] float endMovePosition;
     Quaternion rotationY;
 
     void Start()
     {
-        controller = GetComponent<CharacterController>();        
+        controller = GetComponent<CharacterController>();
+        speed = Random.Range(5,8);
     }
 
 
     void FixedUpdate()
-    {  
-        if (controller.transform.position.x > 11)
+    {
+        Move();
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.tag == "Weapon")
+        {
+            Destroy(gameObject);
+        }
+    }
+  
+    private void Move()
+    {
+        if (controller.transform.position.x > startMovePosition)
         {
             rotationY = Quaternion.AngleAxis(-90, Vector3.up);
             transform.rotation = rotationY;
             pos.x = -speed;
         }
-        if (controller.transform.position.x < -9)
+        if (controller.transform.position.x < endMovePosition)
         {
             rotationY = Quaternion.AngleAxis(90, Vector3.up);
             transform.rotation = rotationY;
-            pos.x = speed;           
-        }             
+            pos.x = speed;
+        }
         controller.Move(pos * Time.fixedDeltaTime);
     }
+
 }

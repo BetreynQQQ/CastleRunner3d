@@ -14,20 +14,57 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float gravity;
     [SerializeField] GameObject restartBtnMenu;
     [SerializeField] GameObject pauseBtnMenu;
-    
+    [SerializeField] GameObject weapon;   
+    [SerializeField] Text textWeaponReload;
+    [SerializeField] GameObject losePanel;
 
+    private readonly float attackWait = 5;
+    private bool isAttack;
     private int lineToMove = 1;
     public float lineDistance = 4;
-    private float maxSpeed = 90;   
+    private readonly float maxSpeed = 90;
 
     void Start()
     {
         controller = GetComponent<CharacterController>();
         anim = GetComponent<Animator>();
         StartCoroutine(SpeedIncrease());
+        isAttack = true;
     }
 
     void Update()
+    {
+        InputMove();        
+    }
+
+    void FixedUpdate()
+    {
+       Run();
+    }
+
+    private void Jump()
+    {
+        dir.y = jumpForce;       
+        anim.SetTrigger("Jump");      
+    }
+
+    private void OnControllerColliderHit(ControllerColliderHit hit)
+    {
+        if(hit.gameObject.CompareTag("obstacle"))
+        {
+            losePanel.SetActive(true);
+            pauseBtnMenu.SetActive(false);
+            restartBtnMenu.SetActive(false);
+            textWeaponReload.text = "";
+            Time.timeScale = 0;
+        }
+    }
+
+    
+
+   
+
+    private void InputMove()
     {
         if (SwipeController.swipeRight)
         {
@@ -47,24 +84,36 @@ public class PlayerController : MonoBehaviour
                 Jump();
         }
 
-        if (controller.isGrounded)
-            anim.SetBool("Running", true);
-        else
-            anim.SetBool("Running", false);
+        if (SwipeController.doubleTap)
+        {
+            if (Time.timeScale > 0)
+            { 
+                if(isAttack)
+                    StartCoroutine(AttackWait());
+            }
+        }
+           
+                
+        IsGroundedAnim();
+        HorizontalMove();            
+    }
 
+    private void HorizontalMove()
+    {
+      
 
         Vector3 targetPosition = transform.position.z * transform.forward + transform.position.y * transform.up;
 
-        if(lineToMove == 0)
+        if (lineToMove == 0)
         {
             targetPosition += Vector3.left * lineDistance;
         }
-        else if(lineToMove == 2)
+        else if (lineToMove == 2)
             targetPosition += Vector3.right * lineDistance;
 
         if (transform.position == targetPosition)
             return;
-
+     
         Vector3 diff = targetPosition - transform.position;
 
         Vector3 moveDir = diff.normalized * 25 * Time.deltaTime;
@@ -74,36 +123,49 @@ public class PlayerController : MonoBehaviour
         else
             controller.Move(diff);
 
+       
     }
 
-    void FixedUpdate()
+    private void Run()
     {
         dir.z = speed;
         dir.y += gravity * Time.fixedDeltaTime;
         controller.Move(dir * Time.fixedDeltaTime);
     }
 
-    private void Jump()
+    private void Attack()
     {
-        dir.y = jumpForce;       
-        anim.SetTrigger("Jump");      
+       
+        Vector3 posWeapon = new(transform.position.x, transform.position.y + 1f, transform.position.z + 1f);
+        Instantiate(weapon,posWeapon, weapon.transform.rotation);
     }
 
-    private void OnControllerColliderHit(ControllerColliderHit hit)
+    private void IsGroundedAnim()
     {
-        if(hit.gameObject.tag == "obstacle")
-        {
-            restartBtnMenu.GetComponent<Button>().onClick.Invoke();           
-        }
+        if (controller.isGrounded)
+            anim.SetBool("Running", true);
+        else
+            anim.SetBool("Running", false);
+    }
+
+    private IEnumerator AttackWait()
+    {
+        textWeaponReload.text = "Нет топора";
+        Attack();
+        isAttack = false;
+        yield return new WaitForSeconds(attackWait);
+        textWeaponReload.text = "Топор готов";
+        isAttack = true;
     }
 
     private IEnumerator SpeedIncrease()
     {
         yield return new WaitForSeconds(4);
-        if(speed < maxSpeed)
+        if (speed < maxSpeed)
         {
             speed += 1;
             StartCoroutine(SpeedIncrease());
-        }       
+        }
     }
+  
 }
