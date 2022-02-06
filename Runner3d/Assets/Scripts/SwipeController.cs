@@ -19,13 +19,8 @@ public class SwipeController : MonoBehaviour
             tap = true;
             isDraging = true;
             startTouch = Input.mousePosition;
-            //Двойное нажатие
-            float timeFromLastClick = Time.realtimeSinceStartup - lastCklickTime;
-            lastCklickTime = Time.realtimeSinceStartup;
-            if(timeFromLastClick < doubleTapDelay)
-            {
-                doubleTap = true;
-            }
+            DoubleClick();         
+           
             
         }
         else if (Input.GetMouseButtonUp(0))
@@ -38,23 +33,17 @@ public class SwipeController : MonoBehaviour
 
         #region Мобильная версия
         if (Input.touches.Length > 0)
-        {
+        {          
             if (Input.touches[0].phase == TouchPhase.Began)
-            {
+            {              
                 tap = true;
                 isDraging = true;
                 startTouch = Input.touches[0].position;
-                //Двойное нажатие
-                float timeFromLastClick = Time.realtimeSinceStartup - lastCklickTime;
-                lastCklickTime = Time.realtimeSinceStartup;
-                if (timeFromLastClick < doubleTapDelay)
-                {
-                    doubleTap = true;
-                }
+                DoubleClick();
             }
             else if (Input.touches[0].phase == TouchPhase.Ended || Input.touches[0].phase == TouchPhase.Canceled)
             {
-                isDraging = false;
+                isDraging = false;               
                 Reset();
             }
         }
@@ -94,6 +83,17 @@ public class SwipeController : MonoBehaviour
             }
             Reset();
         }      
+    }
+
+    private void DoubleClick()
+    {
+        //Двойное нажатие
+        float timeFromLastClick = Time.time - lastCklickTime;
+        lastCklickTime = Time.time;
+        if (timeFromLastClick < doubleTapDelay)
+        {
+            doubleTap = true;
+        }
     }
 
     private void Reset()

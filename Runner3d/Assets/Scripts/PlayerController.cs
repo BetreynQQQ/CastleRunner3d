@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -7,8 +8,10 @@ public class PlayerController : MonoBehaviour
 {
     private CharacterController controller;
     private Vector3 dir;
-    private Animator anim;
+    private Animator anim;    
 
+    public static Vector3 PlayerPos;
+    
     [SerializeField] private float speed;
     [SerializeField] private float jumpForce;
     [SerializeField] private float gravity;
@@ -18,11 +21,12 @@ public class PlayerController : MonoBehaviour
     [SerializeField] Text textWeaponReload;
     [SerializeField] GameObject losePanel;
 
-    private readonly float attackWait = 5;
+
+    private readonly float attackWait = 1.3f;
     private bool isAttack;
     private int lineToMove = 1;
     public float lineDistance = 4;
-    private readonly float maxSpeed = 90;
+    private readonly float maxSpeed = 60;
 
     void Start()
     {
@@ -30,11 +34,16 @@ public class PlayerController : MonoBehaviour
         anim = GetComponent<Animator>();
         StartCoroutine(SpeedIncrease());
         isAttack = true;
+        SwipeManager.instance.MoveEvent += MovePlayer;
+        SwipeManager.instance.DoubleClickEvent += DoubleClick;
     }
 
     void Update()
     {
-        InputMove();        
+        PlayerPos = controller.transform.position;
+        IsGroundedAnim();        
+        HorizontalMove();
+        WallRun();
     }
 
     void FixedUpdate()
@@ -60,42 +69,39 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    
-
-   
-
-    private void InputMove()
+    private void MovePlayer(bool[] swipes)
     {
-        if (SwipeController.swipeRight)
+        if (swipes[(int)SwipeManager.Direction.Left])
         {
             if (lineToMove < 2)
                 lineToMove++;
+
+
         }
 
-        if (SwipeController.swipeLeft)
+        if (swipes[(int)SwipeManager.Direction.Right])
         {
             if (lineToMove > 0)
                 lineToMove--;
         }
 
-        if (SwipeController.swipeUp)
+
+
+        if (swipes[(int)SwipeManager.Direction.Up])
         {
             if (controller.isGrounded)
                 Jump();
-        }
+        }       
+    }
 
-        if (SwipeController.doubleTap)
-        {
+    private void DoubleClick(Vector2 pos)
+    {
+        if(pos != null)
             if (Time.timeScale > 0)
-            { 
-                if(isAttack)
+            {
+                if (isAttack && controller.isGrounded)
                     StartCoroutine(AttackWait());
             }
-        }
-           
-                
-        IsGroundedAnim();
-        HorizontalMove();            
     }
 
     private void HorizontalMove()
@@ -109,7 +115,7 @@ public class PlayerController : MonoBehaviour
             targetPosition += Vector3.left * lineDistance;
         }
         else if (lineToMove == 2)
-            targetPosition += Vector3.right * lineDistance;
+            targetPosition += Vector3.right * lineDistance;      
 
         if (transform.position == targetPosition)
             return;
@@ -135,9 +141,10 @@ public class PlayerController : MonoBehaviour
 
     private void Attack()
     {
-       
-        Vector3 posWeapon = new(transform.position.x, transform.position.y + 1f, transform.position.z + 1f);
-        Instantiate(weapon,posWeapon, weapon.transform.rotation);
+        anim.SetTrigger("Attack");
+        StartCoroutine(AnimAttack());
+        //Vector3 posWeapon = new(transform.position.x, transform.position.y + 1f, transform.position.z + 1f);
+        //Instantiate(weapon,posWeapon, weapon.transform.rotation);
     }
 
     private void IsGroundedAnim()
@@ -148,6 +155,30 @@ public class PlayerController : MonoBehaviour
             anim.SetBool("Running", false);
     }
 
+    private bool WallRun()
+    {
+        RaycastHit hit;
+        Vector3 target = new(transform.position.x - 50f, transform.position.y, transform.position.z);
+        Ray ray = new(transform.position, target - transform.position);
+        Physics.Raycast(ray, out hit);
+        if(hit.collider != null)
+        {
+            if (hit.collider.CompareTag("WallRun"))
+                return true;
+            Debug.DrawLine(ray.origin,hit.point,Color.blue);
+        }
+        return false;
+    }
+
+    private void StartWallRun()
+    {
+        if(WallRun())
+        {
+            transform.Rotate(Vector3.back, 90);
+        }
+       
+    }
+
     private IEnumerator AttackWait()
     {
         textWeaponReload.text = "Нет топора";
@@ -156,6 +187,13 @@ public class PlayerController : MonoBehaviour
         yield return new WaitForSeconds(attackWait);
         textWeaponReload.text = "Топор готов";
         isAttack = true;
+    }
+
+    private IEnumerator AnimAttack()
+    {       
+        yield return new WaitForSeconds(0.3f);
+        Vector3 posWeapon = new(transform.position.x, transform.position.y + 1f, transform.position.z + 1f);
+        Instantiate(weapon, posWeapon, weapon.transform.rotation);
     }
 
     private IEnumerator SpeedIncrease()
