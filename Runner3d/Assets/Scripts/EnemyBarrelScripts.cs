@@ -7,8 +7,8 @@ public class EnemyBarrelScripts : MonoBehaviour
     Quaternion rotationY;
     float speed;
     [SerializeField] float RotationSpeed;
-    [SerializeField] float posMoveXstart;
-    [SerializeField] float posMoveXend;
+    [SerializeField] float posMoveXmax;
+    [SerializeField] float posMoveXmin;
     void Start()
     {
         controller = GetComponent<CharacterController>();
@@ -23,12 +23,12 @@ public class EnemyBarrelScripts : MonoBehaviour
 
     private void Move()
     {
-        if (controller.transform.position.x > posMoveXend)
+        if (controller.transform.position.x > posMoveXmax)
         {
             rotationY = Quaternion.AngleAxis(RotationSpeed, Vector3.forward);
             pos.x = -speed;
         }
-        if (controller.transform.position.x == -posMoveXstart)
+        if (controller.transform.position.x == -posMoveXmin)
         {
             rotationY = Quaternion.AngleAxis(-RotationSpeed, Vector3.forward);
             pos.x = speed;
@@ -36,5 +36,5 @@ public class EnemyBarrelScripts : MonoBehaviour
         transform.rotation *= rotationY;
         controller.Move(pos * Time.fixedDeltaTime);
     }
-
+    
 }

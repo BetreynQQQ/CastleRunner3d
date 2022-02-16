@@ -6,10 +6,9 @@ using UnityEngine.SceneManagement;
 public class GameManager : MonoBehaviour
 {
     private bool isPaused;
-      
+
     public void RestartLevel()
     {
-
         SceneManager.LoadScene(0);
         Time.timeScale = 1;
         SwipeManager.instance.enabled = true;
@@ -22,6 +21,7 @@ public class GameManager : MonoBehaviour
             Time.timeScale = 1;
             isPaused = false;
             SwipeManager.instance.enabled = true;
+            
             return;
         }
 

@@ -13,9 +13,7 @@ public class WeaponRotate : MonoBehaviour
     }   
 
     private void RotaionWeapon()
-    {
-        
-        transform.Rotate(Vector3.back, rotateSpeed * Time.deltaTime);
-        
+    {    
+        transform.Rotate(Vector3.back, rotateSpeed * Time.deltaTime);        
     }   
 }

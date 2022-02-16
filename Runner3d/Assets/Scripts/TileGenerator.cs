@@ -27,7 +27,7 @@ public class TileGenerator : MonoBehaviour
     {
         if(player.position.z - 120> spawnPos - (startTiles * tileLength))
         {
-            SpawnTile(Random.Range(0, tilePrefabs.Length));
+            SpawnTile(Random.Range(1, tilePrefabs.Length));
             DestroyTile();
         }
             

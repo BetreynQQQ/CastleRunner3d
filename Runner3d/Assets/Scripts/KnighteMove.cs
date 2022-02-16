@@ -4,48 +4,42 @@ using UnityEngine;
 
 public class KnighteMove : MonoBehaviour
 {
-    private CharacterController controller;
-    Vector3 pos;
-    float speed;
-    [SerializeField] float startMovePosition;
-    [SerializeField] float endMovePosition;
-    Quaternion rotationY;
+    private float speed;
+    private float quaternion;
+    [SerializeField] private float maxMovePosition;
+    [SerializeField] private float minMovePosition;
 
-    void Start()
-    {
-        controller = GetComponent<CharacterController>();
-        speed = Random.Range(5,8);
+    private void Start()
+    {      
+        speed = Random.Range(5,9);
     }
 
-
-    void FixedUpdate()
+    private void FixedUpdate()
     {
-        Move();
+        if (transform.position.x > maxMovePosition)
+        {
+            quaternion = -90;
+        }
+        if (transform.position.x < minMovePosition)
+        {
+            quaternion = 90;
+        }
+        Move(quaternion);
     }
 
+   
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.tag == "Weapon")
+        if (other.gameObject.CompareTag("Weapon"))
         {
             Destroy(gameObject);
         }
     }
-  
-    private void Move()
+
+    private void Move(float Rotate)
     {
-        if (controller.transform.position.x > startMovePosition)
-        {
-            rotationY = Quaternion.AngleAxis(-90, Vector3.up);
-            transform.rotation = rotationY;
-            pos.x = -speed;
-        }
-        if (controller.transform.position.x < endMovePosition)
-        {
-            rotationY = Quaternion.AngleAxis(90, Vector3.up);
-            transform.rotation = rotationY;
-            pos.x = speed;
-        }
-        controller.Move(pos * Time.fixedDeltaTime);
+        transform.Translate(Vector3.forward * speed * Time.deltaTime);
+        transform.rotation = Quaternion.AngleAxis(Rotate,Vector3.up);
     }
 
 }
