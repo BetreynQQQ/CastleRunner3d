@@ -9,9 +9,10 @@ public class GameManager : MonoBehaviour
 
     public void RestartLevel()
     {
-        SceneManager.LoadScene(0);
+        SceneManager.LoadScene("MainLobbyScene");
         Time.timeScale = 1;
         SwipeManager.instance.enabled = true;
+        
     }
 
     public void PauseLevel()

@@ -1,3 +1,4 @@
+using Assets.Scripts.SaveSystem.Data;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -10,7 +11,9 @@ public class PlayerController : MonoBehaviour
     private CapsuleCollider col;
     private Vector3 dir;
     private Animator anim;
-    
+   
+    public static Action<int> WinPlayerEvent;
+
     [SerializeField] private float speed;
     [SerializeField] private float jumpForce;
     [SerializeField] private float gravity;
@@ -18,7 +21,13 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private GameObject weapon;   
     [SerializeField] private GameObject WeaponDelayIcon;
     [SerializeField] private GameObject losePanel;
+    [SerializeField] private GameObject winPanel;
+    [SerializeField] private GameObject hudPanel;
+    [SerializeField] private GameObject FinishText;
+ 
+
     [SerializeField] private Text coinsText;
+    [SerializeField] private SaveData data;
 
     private bool isDie;
     private int coinScore;
@@ -29,6 +38,8 @@ public class PlayerController : MonoBehaviour
     private float lineDistance = 4;
     private float wallRunLineDistance = 6;
     private readonly float maxSpeed = 60;
+
+
 
     private void Start()
     {
@@ -59,11 +70,11 @@ public class PlayerController : MonoBehaviour
 
     private void OnControllerColliderHit(ControllerColliderHit hit)
     {
-        Debug.Log("Stolknoveniye2");
+       //Debug.Log("Stolknoveniye2");
 
         if (hit.gameObject.CompareTag("obstacle"))
-        {            
-            StartCoroutine(Die());
+        {           
+            StartCoroutine(DieRoutine());
             anim.SetBool("Running", false);
             anim.SetBool("DieBool", true);
         }
@@ -71,29 +82,40 @@ public class PlayerController : MonoBehaviour
 
 
 
-    private IEnumerator Die()
+    private IEnumerator DieRoutine()
     {
+        Debug.Log("StartEnumerator1");
         isDie = true;
-        speed = 0;        
-        yield return new WaitForSeconds(2f);
+        speed = 0;
+        hudPanel.SetActive(false);     
+        yield return new WaitForSeconds(2f);      
         losePanel.SetActive(true);
-        pauseBtnMenu.SetActive(false);
-        Time.timeScale = 0;        
+        WinPlayerEvent?.Invoke(coinScore);
+        data.SaveCoins(coinScore);
+        Time.timeScale = 0;
+        
+
     }
 
     private void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.CompareTag("Coin"))
-        {
+        {            
             coinScore++;
             coinsText.text = coinScore.ToString();
         }
         if (other.gameObject.CompareTag("obstacle"))
         {
-            Debug.Log("Столкновение");
-            StartCoroutine(Die());
+           
+            //Debug.Log("Столкновение");
+            StartCoroutine(DieRoutine());
             anim.SetBool("Running", false);
             anim.SetBool("DieBool", true);
+        }
+        if (other.gameObject.CompareTag("Finish"))
+        {
+            other.gameObject.SetActive(false);
+            StartCoroutine(WinEnumerator());           
         }
     }
 
@@ -257,6 +279,22 @@ public class PlayerController : MonoBehaviour
                 speed += 1;
             StartCoroutine(SpeedIncrease());
         }
+    }
+
+
+    private IEnumerator WinEnumerator()
+    {
+        
+        hudPanel.SetActive(false);
+        
+        speed = 2;
+        FinishText.SetActive(true);
+        yield return new WaitForSeconds(2f);
+        FinishText.SetActive(false);
+        data.SaveCoins(coinScore);
+        winPanel.SetActive(true);
+        WinPlayerEvent?.Invoke(coinScore);
+        Time.timeScale = 0;
     }
 
     private bool WallRun(float Direction)

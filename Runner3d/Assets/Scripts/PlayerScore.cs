@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Assets.Scripts.SaveSystem.Data;
+using UnityEngine;
 using UnityEngine.UI;
 
 namespace Assets.Scripts
@@ -6,20 +7,16 @@ namespace Assets.Scripts
     public class PlayerScore : MonoBehaviour
     {
         [SerializeField] private Transform player;
-        [SerializeField] private Text scoreText;
-        private string score;
-
+        [SerializeField] private Text scoreText;        
+        private int score;
+        
         private void Update()
         {
-            score = ((int)(player.position.z / 2)).ToString();
-            scoreText.text = score;
-            DieScore();
+            score = ((int)(player.position.z / 2));
+            scoreText.text = score.ToString();
+                                
         }
 
-        private void DieScore()
-        {
-            if (Time.timeScale == 0)
-                scoreText.text = "\nВы проиграли\n ваш счет: "+ score;
-        }
+        
     }
 }

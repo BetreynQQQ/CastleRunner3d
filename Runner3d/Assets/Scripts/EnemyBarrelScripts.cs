@@ -1,3 +1,5 @@
+using System;
+using System.Collections;
 using UnityEngine;
 
 public class EnemyBarrelScripts : MonoBehaviour
@@ -9,10 +11,14 @@ public class EnemyBarrelScripts : MonoBehaviour
     [SerializeField] float RotationSpeed;
     [SerializeField] float posMoveXmax;
     [SerializeField] float posMoveXmin;
+    [SerializeField] GameObject Fire;
+    [SerializeField] GameObject Explosion;
+    public static Action BoomEvent;
+
+
     void Start()
-    {
-        controller = GetComponent<CharacterController>();
-        speed = Random.Range(7,10);
+    {        
+       // speed = Random.Range(7,10);
     }
 
     
@@ -23,18 +29,35 @@ public class EnemyBarrelScripts : MonoBehaviour
 
     private void Move()
     {
-        if (controller.transform.position.x > posMoveXmax)
+        if (transform.position.x > posMoveXmax)
         {
             rotationY = Quaternion.AngleAxis(RotationSpeed, Vector3.forward);
-            pos.x = -speed;
+           // pos.x = -speed;
         }
-        if (controller.transform.position.x == -posMoveXmin)
+        if (transform.position.x == -posMoveXmin)
         {
             rotationY = Quaternion.AngleAxis(-RotationSpeed, Vector3.forward);
-            pos.x = speed;
+           // pos.x = speed;
         }
         transform.rotation *= rotationY;
-        controller.Move(pos * Time.fixedDeltaTime);
+       // controller.Move(pos * Time.fixedDeltaTime);
     }
-    
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if(other.CompareTag("Player"))
+        {
+            Fire.gameObject.SetActive(false);
+            Explosion.gameObject.SetActive(true);
+            StartCoroutine(DestroyFire());
+            this.gameObject.SetActive(false);
+            BoomEvent?.Invoke();
+        }
+    }
+
+    private IEnumerator DestroyFire()
+    {
+        yield return new WaitForSeconds(0.3f);
+        Explosion.gameObject.SetActive(false);
+    }
 }

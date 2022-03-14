@@ -14,24 +14,25 @@ public class TileGenerator : MonoBehaviour
 
     void Start()
     {
-       for (int i = 0; i < startTiles; i++)
+        for (int i = 0; i < startTiles; i++)
         {
-            if(i == 0)            
-                SpawnTile(0);            
-            else            
-                SpawnTile(Random.Range(1, tilePrefabs.Length));                      
-        }
+            SpawnTile(i);
+            //if (i == 0)
+            //    SpawnTile(0);
+            //else
+            //    SpawnTile(Random.Range(1, tilePrefabs.Length));
+        }        
     }
 
     void Update()
     {
-        if(player.position.z - 120> spawnPos - (startTiles * tileLength))
-        {
-            SpawnTile(Random.Range(1, tilePrefabs.Length));
-            DestroyTile();
-        }
-            
-    }
+        //if (player.position.z - 120 > spawnPos - (startTiles * tileLength))
+        //{
+        //    SpawnTile(Random.Range(1, tilePrefabs.Length));
+        //    DestroyTile();
+        //}
+    }        
+    
 
     private void SpawnTile(int tileIndex)
     {
